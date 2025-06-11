@@ -1,4 +1,3 @@
-cat << 'EOF' > README.md
 # 🧪 User Validation API
 
 Microserviço Laravel para validação, enriquecimento e análise de risco de dados de usuários via múltiplas APIs externas. Utiliza Redis para cache e fila com geração de relatório em PDF.
