@@ -1,0 +1,1 @@
+0000000000000000000000000000000000000000 047ed5add8cea8d36147b10cdc02a1a59c5e3495 Gabriel Vasconcelos <92489005+gabrielsvasconcelos@users.noreply.github.com> 1749499666 -0300	clone: from C:/Users/gbrie/AppData/Local/Composer/vcs/https---github.com-laravel-laravel.git/
