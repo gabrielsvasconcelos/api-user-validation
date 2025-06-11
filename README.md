@@ -1,61 +1,191 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+cat << 'EOF' > README.md
+# 🧪 User Validation API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Microserviço Laravel para validação, enriquecimento e análise de risco de dados de usuários via múltiplas APIs externas. Utiliza Redis para cache e fila com geração de relatório em PDF.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📦 Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.1 ou superior  
+- Composer  
+- MySQL  
+- Redis  
+- Laravel 10+  
+- Extensões PHP: `pdo`, `mbstring`, `openssl`, `fileinfo`  
+- Node.js (opcional para frontend/Vite)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
+## 🚀 Instalação
+```
+git clone https://github.com/gabrielsvasconcelos/api-user-validation.git
+```
+Acesse o diretório e rode os comandos do laravel
+```
+cd api-user-validation
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
+## ⚙️ Configuração do `.env`
 
-## Learning Laravel
+```env
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:...
+APP_DEBUG=true
+APP_URL=http://localhost
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+CACHE_DRIVER=redis
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 
-## Laravel Sponsors
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=uservalidationdb
+DB_USERNAME=root
+DB_PASSWORD=
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="User Validation"
 
-### Premium Partners
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+```
+⏱️ Execução da Fila (Para geração dos relatórios)
+```
+php artisan queue:work
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+📡 Endpoints da API
+🔹 POST /api/v1/users/process
 
-## Contributing
+Envia os dados do usuário para validação, enriquecimento e processamento.
+```
+curl --location 'http://localhost:8000/api/v1/users/process' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "cpf": "14847244028",
+    "cep": "62630000",
+    "email": "gabriel@gmail.com"
+  }'
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+🔹 GET /api/v1/users/{cpf}
 
-## Code of Conduct
+Consulta os dados do usuário com base no CPF.
+```
+curl --location 'http://localhost:8000/api/v1/users/14847244028'
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+🔹 GET /api/v1/mock/cpf-status/{cpf}
 
-## Security Vulnerabilities
+Mock que retorna status aleatório baseado nos últimos dígitos do CPF.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+curl --location 'http://localhost:8000/api/v1/mock/cpf-status/14847244028'
+```
 
-## License
+🧾 Funcionalidades
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+✅ Validação com FormRequest
+
+✅ Retry automático em APIs (ViaCEP, Nationalize)
+
+✅ Cache com Redis TTL 24h
+
+✅ Job assíncrono de análise de risco
+
+✅ Geração de PDF com DomPDF
+
+✅ Simulação de envio de e-mail via Log
+
+✅ Mock de status de CPF
+
+✅ Logs estruturados
+
+✅ Repository pattern
+
+✅ Testes com Pest
+
+
+
+📄 Geração de Relatório PDF
+
+
+O relatório é salvo em:
+```
+storage/app/reports/report_{cpf}.pdf
+```
+Contém:
+
+Dados do usuário
+
+Endereço formatado
+
+Status do CPF
+
+Risco: low, medium, high
+
+🧠 Lógica de Risco
+
+CPF negativado + cidade SP ou RJ → high
+
+CPF negativado → medium
+
+Caso contrário → low
+
+📝 Testes com Pest
+
+Rodar todos:
+
+```
+php artisan test
+```
+
+Testes implementados:
+
+Validação de CPF, CEP, e-mail
+
+Mock de status do CPF
+
+Endpoint /process (com e sem cache)
+
+Endpoint /users/{cpf}
+
+Logs de debug
+
+Cobertura da distribuição de status aleatórios
+
+
+🧩 Extras Implementados: 
+
+✅ Pest com testes automatizados
+
+✅ Redis com tags e TTL
+
+✅ Queue com retry e fallback
+
+✅ PDF com barryvdh/laravel-dompdf
+
+✅ Logging estruturado e simulação de e-mail
+
+✅ API mockada de CPF status
+
+
+👨‍💻 Desenvolvedor
+Gabriel Vasconcelos
+
